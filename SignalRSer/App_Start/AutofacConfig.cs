@@ -3,6 +3,7 @@ using Autofac.Integration.Mvc;
 using Autofac.Integration.SignalR;
 using Autofac.Integration.WebApi;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Infrastructure;
 using Owin;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,8 @@ namespace SignalRSer.App_Start
             builder.RegisterControllers(Assembly.GetExecutingAssembly());
             builder.RegisterHubs(Assembly.GetExecutingAssembly());
             builder.RegisterFilterProvider();
+
+            //builder.Register((c) => GlobalHost.DependencyResolver.Resolve<IConnectionManager>());
 
             /*
             builder.RegisterType<DBCustomerEntities>()
