@@ -29,7 +29,12 @@ namespace SignalRCli
             _hubConnection.Reconnected += HubConnection_Reconnected;
             _hubConnection.Reconnecting += HubConnection_Reconnecting;
             _hubProxy = _hubConnection.CreateHubProxy("UpdatesHub");
-            _hubProxy.On<TypeOfInterest>(nameof(IClient.Updated), toi => Console.WriteLine("Changed ", toi.ToString()));
+            _hubProxy.On<TypeOfInterest>(nameof(IClient.Updated), OnUpdated);
+        }
+
+        private static void OnUpdated(TypeOfInterest toi)
+        {
+            Console.WriteLine($"Changed objects: " + toi.ToString());
         }
 
         public void Start()
@@ -60,7 +65,14 @@ namespace SignalRCli
                 {
                     Trace.TraceError(ex.ToString());
                 }
-                Task.Delay(2000, token).Wait();
+                try
+                {
+                    Task.Delay(2000, token).Wait();
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError(ex.ToString());
+                }
             }
         }
 

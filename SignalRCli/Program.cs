@@ -25,6 +25,9 @@ namespace SignalRCli
             seManager.Start();
 
             Console.WriteLine("Connection manager started. Press <Enter> to stop.");
+            Console.WriteLine($"You can enter uri {settings.ApiUri}Events/Fire/0..3 to check events broadcast");
+            Console.WriteLine();
+
             Console.ReadLine();
 
             seManager.Stop();

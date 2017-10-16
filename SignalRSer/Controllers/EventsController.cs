@@ -1,5 +1,6 @@
 ﻿using Common;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.AspNet.SignalR.Infrastructure;
 using SignalRSer.Hubs;
 using System;
@@ -27,10 +28,13 @@ namespace SignalRSer.Controllers
 
         [Route("Fire/{toi}"), HttpGet]
         // GET api/values
-        public async Task Fire([FromUri] TypeOfInterest toi)
+        public async Task<IHttpActionResult> Fire([FromUri] TypeOfInterest toi)
         {
             var hub = _connectionManager.GetHubContext<UpdatesHub>();
-            await hub.Clients.All.OnUpdated(toi);
+            IClientProxy proxy = hub.Clients.All;
+            await proxy.Invoke(nameof(IClient.Updated), toi);
+            //await hub.Clients.All.OnUpdated(toi);
+            return Ok();
         }
     }
 }
