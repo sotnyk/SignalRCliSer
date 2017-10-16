@@ -21,55 +21,14 @@ namespace SignalRCli
 
             Console.WriteLine("Api URI: " + settings.ApiUri);
 
-            var hubConnection = new HubConnection(settings.ApiUri);
-            hubConnection.StateChanged += HubConnection_StateChanged;
-            hubConnection.Closed += HubConnection_Closed;
-            hubConnection.ConnectionSlow += HubConnection_ConnectionSlow;
-            hubConnection.Error += HubConnection_Error;
-            hubConnection.Received += HubConnection_Received;
-            hubConnection.Reconnected += HubConnection_Reconnected;
-            hubConnection.Reconnecting += HubConnection_Reconnecting;
-            IHubProxy hubProxy = hubConnection.CreateHubProxy("UpdatesHub");
-            hubProxy.On<TypeOfInterest>(nameof(IClient.Updated), toi => Console.WriteLine("Changed ", toi.ToString()));
-            
-            hubConnection.Start().Wait();
+            var seManager = new ServerEventsManager(settings.ApiUri);           
+            seManager.Start();
 
+            Console.WriteLine("Connection manager started. Press <Enter> to stop.");
             Console.ReadLine();
-        }
 
-        private static void HubConnection_Reconnecting()
-        {
-            Console.WriteLine("Start reconnecting.");
-        }
-
-        private static void HubConnection_Reconnected()
-        {
-            Console.WriteLine("Reconnected after timeout.");
-        }
-
-        private static void HubConnection_Received(string data)
-        {
-            Console.WriteLine("Received data: " + data);
-        }
-
-        private static void HubConnection_Error(Exception exception)
-        {
-            Console.WriteLine("Error: " + exception);
-        }
-
-        private static void HubConnection_ConnectionSlow()
-        {
-            Console.WriteLine("Connection is slow.");
-        }
-
-        private static void HubConnection_Closed()
-        {
-            Console.WriteLine("Connection closed.");
-        }
-
-        private static void HubConnection_StateChanged(StateChange stateChange)
-        {
-            Console.WriteLine($"State changed from '{stateChange.OldState}' to '{stateChange.NewState}'.");
+            seManager.Stop();
+            Console.WriteLine("Connection manager stopped. Application terminated.");
         }
     }
 }
