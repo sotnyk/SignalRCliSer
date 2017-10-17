@@ -8,5 +8,6 @@ namespace Common
         Patients,
         Users,
         Units,
+        ChatMessages
     }
 }

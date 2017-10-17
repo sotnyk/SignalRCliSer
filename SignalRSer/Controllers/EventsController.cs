@@ -30,11 +30,24 @@ namespace SignalRSer.Controllers
         // GET api/values
         public async Task<IHttpActionResult> Fire([FromUri] TypeOfInterest toi)
         {
-            var hub = _connectionManager.GetHubContext<UpdatesHub>();
-            IClientProxy proxy = hub.Clients.All;
-            await proxy.Invoke(nameof(IClient.Updated), toi);
+            var subscribers = UpdatesHub.FindInterestedSubscribers(toi);
+            if (subscribers.Any())
+            {
+                var hub = _connectionManager.GetHubContext<UpdatesHub>();
+                foreach (Guid id in subscribers)
+                {
+                    IClientProxy proxy = hub.Clients.Group(id.ToString());
+                    await proxy.Invoke(nameof(IClient.Updated), toi);
+                }
+            }
             //await hub.Clients.All.OnUpdated(toi);
             return Ok();
+        }
+
+        [Route("AllSubscribers"), HttpGet]
+        public IEnumerable<Guid> AllSubscribers()
+        {
+            return UpdatesHub.AllSubscribers();
         }
     }
 }

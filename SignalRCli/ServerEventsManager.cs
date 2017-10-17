@@ -15,12 +15,14 @@ namespace SignalRCli
         IHubProxy _hubProxy;
         private Task _connectionTask;
         private CancellationTokenSource _connectionTaskCT;
-        Guid _clientId = Guid.NewGuid();
+        Guid _id = Guid.NewGuid();
         private object _sync = new object();
 
         public ServerEventsManager(string apiUri)
         {
-            _hubConnection = new HubConnection(apiUri);
+            IDictionary<string, string> queryString = new Dictionary<string, string>();
+            queryString.Add("id", _id.ToString());
+            _hubConnection = new HubConnection(apiUri, queryString);
             _hubConnection.StateChanged += HubConnection_StateChanged;
             _hubConnection.Closed += HubConnection_Closed;
             _hubConnection.ConnectionSlow += HubConnection_ConnectionSlow;
@@ -126,9 +128,15 @@ namespace SignalRCli
             Console.WriteLine("Connection closed.");
         }
 
-        private static void HubConnection_StateChanged(StateChange stateChange)
+        private void HubConnection_StateChanged(StateChange stateChange)
         {
             Console.WriteLine($"State changed from '{stateChange.OldState}' to '{stateChange.NewState}'.");
+            if (stateChange.NewState == ConnectionState.Connected)
+            {
+                Console.WriteLine($"Updates subscription to {nameof(TypeOfInterest.Patients)} and {nameof(TypeOfInterest.ChatMessages)}.");
+                _hubProxy.Invoke("SetTois", new HashSet<TypeOfInterest> { TypeOfInterest.Patients, TypeOfInterest.ChatMessages });
+                Console.WriteLine($"Subscription has been updated.");
+            }
         }
     }
 }
