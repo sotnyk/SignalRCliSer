@@ -20,8 +20,10 @@ namespace SignalRCli
 
         public ServerEventsManager(string apiUri)
         {
-            IDictionary<string, string> queryString = new Dictionary<string, string>();
-            queryString.Add("id", _id.ToString());
+            IDictionary<string, string> queryString = new Dictionary<string, string>
+            {
+                ["id"] = _id.ToString() 
+            };
             _hubConnection = new HubConnection(apiUri, queryString);
             _hubConnection.StateChanged += HubConnection_StateChanged;
             _hubConnection.Closed += HubConnection_Closed;
@@ -32,6 +34,7 @@ namespace SignalRCli
             _hubConnection.Reconnecting += HubConnection_Reconnecting;
             _hubProxy = _hubConnection.CreateHubProxy("UpdatesHub");
             _hubProxy.On<TypeOfInterest>(nameof(IClient.Updated), OnUpdated);
+            Console.WriteLine($"Created {nameof(ServerEventsManager)} with id={_id}");
         }
 
         private static void OnUpdated(TypeOfInterest toi)

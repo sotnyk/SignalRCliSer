@@ -46,7 +46,7 @@ namespace SignalRSer.Hubs
         {
             if (Guid.TryParse(Context.QueryString["id"], out var id))
             {
-                _connectionFilters.Remove(id);
+                _connectionFilters.Remove(Context.ConnectionId);
             }
             return base.OnDisconnected(stopCalled);
         }
@@ -55,7 +55,7 @@ namespace SignalRSer.Hubs
         {
             if (Guid.TryParse(Context.QueryString["id"], out var id))
             {
-                _connectionFilters.Add(id, tois);
+                _connectionFilters.Add(Context.ConnectionId, id, tois);
             }
         }
     }

@@ -8,22 +8,26 @@ namespace SignalRSer.Hubs
 {
     public class ConnectionFilters
     {
-        private readonly Dictionary<Guid, HashSet<TypeOfInterest>> _connections =
-            new Dictionary<Guid, HashSet<TypeOfInterest>>();
+        private readonly Dictionary<string, ClientDescriptor> _connections =
+            new Dictionary<string, ClientDescriptor>();
 
         public int Count => _connections.Count;
 
-        public void Add(Guid id, HashSet<TypeOfInterest> tois)
+        public void Add(string connectionId, Guid id, HashSet<TypeOfInterest> tois)
         {
             lock (_connections)
             {
-                if (!_connections.ContainsKey(id))
+                if (!_connections.ContainsKey(connectionId))
                 {
-                    _connections.Add(id, tois);
+                    _connections.Add(connectionId, new ClientDescriptor {
+                        ConnectionId = connectionId,
+                        Id = id,
+                        Tois = tois,
+                    });
                 }
                 else
                 {
-                    _connections[id] = tois;
+                    _connections[connectionId].Tois = tois;
                 }
             }
         }
@@ -32,7 +36,7 @@ namespace SignalRSer.Hubs
         {
             lock (_connections)
             {
-                return _connections.Select(kvp => kvp.Key);
+                return _connections.Select(kvp => kvp.Value.Id);
             }
         }
 
@@ -40,24 +44,26 @@ namespace SignalRSer.Hubs
         {
             lock (_connections)
             {
-                return _connections.Where(kvp => kvp.Value.Contains(toi)).Select(kvp => kvp.Key);
+                return _connections
+                    .Where(kvp => kvp.Value.Tois.Contains(toi))
+                    .Select(kvp => kvp.Value.Id).Distinct();
             }
         }
 
-        public IEnumerable<Guid> GetConnectionIds()
-        {
-            return _connections.Keys;
-        }
-
-        public void Remove(Guid id)
+        public void Remove(String connectionId)
         {
             lock (_connections)
             {
-                if (_connections.ContainsKey(id))
-                    _connections.Remove(id);
+                if (_connections.ContainsKey(connectionId))
+                    _connections.Remove(connectionId);
             }
         }
 
-        //public void 
+        internal class ClientDescriptor
+        {
+            public string ConnectionId { get; set; }
+            public Guid Id { get; set; }
+            public HashSet<TypeOfInterest> Tois { get; set; }
+        }
     }
 }
