@@ -34,11 +34,11 @@ namespace SignalRSer.App_Start
         {
             var signalRConfig = new HubConfiguration
             {
-                Resolver = new Autofac.Integration.SignalR.AutofacDependencyResolver(_container),
+                //Resolver = new Autofac.Integration.SignalR.AutofacDependencyResolver(_container),
                 EnableDetailedErrors = true,
                 EnableJavaScriptProxies = false
             };
-            GlobalHost.DependencyResolver = signalRConfig.Resolver;
+            //GlobalHost.DependencyResolver = signalRConfig.Resolver;
             /*
             var hubPipeline = signalRConfig.Resolver.Resolve<Microsoft.AspNet.SignalR.Hubs.IHubPipeline>();
             hubPipeline.AddModule(new MyErrorModule()
@@ -72,9 +72,11 @@ namespace SignalRSer.App_Start
                    .As(typeof(IGenericRepository<>))
                    .InstancePerRequest();
                    */
-            //Set the dependency resolver to be Autofac.  
+            
             _container = builder.Build();
 
+            //Set the dependency resolver to be Autofac.  
+            GlobalHost.DependencyResolver = new Autofac.Integration.SignalR.AutofacDependencyResolver(_container);
             return _container;
         }
     }
