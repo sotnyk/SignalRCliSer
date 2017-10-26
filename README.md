@@ -1,2 +1,2 @@
 # SignalRCliSer
-SignalR for desktop study project
+SignalR for desktop client. Study project.
